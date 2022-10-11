@@ -1,97 +1,139 @@
-const board = document.querySelector('.board');
-const cells = Array.from(document.querySelectorAll('.cell'));
-let currentClass 
-const x_class = 'x';
-const circle_class = 'circle';
-const messageBox = document.querySelector('.messagebox');
-const gameMessage = document.querySelector('.gamemessage');
-const showTern = document.querySelector('.showtern');
-const restart = document.querySelector('.restart');
-const winningCombinationArray = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8],
-    [0,4,8],
-    [2,4,6],
-];
+const body = document.body;
+const header = document.querySelector('header');
+const addTodo = document.querySelector('.create-todo-button');
+const formDivContainer = document.querySelector('.form-div');
+const todoForm = document.querySelector('.todo-form');
+const todoContainer = document.querySelector('.todo-container');
+const taskField = document.querySelector('.task');
+const dueDateField = document.querySelector('.duedate');
+const add = document.querySelector('.add');
+const cancel = document.querySelector('.cancel-link')
+const allTodo = [];
 
 
 
-function versusPlayer(){
+// showimg and removing formDivContainer from the User Screen
 
-    restart.addEventListener('click',versusPlayer)
+addTodo.addEventListener('click',() => {
+    formDivContainer.classList.add('show-form-div')
+    todoForm.classList.add('show-todo-form');
 
-
-   restart.addEventListener('click' , () => {
-    restart.classList.remove('showRestartButton')
-    cells.forEach(cell => {
-        cell.classList.remove(x_class);
-        cell.classList.remove(circle_class);
-        showTern.innerText = '';
-        gameMessage.innerText = '';
-    })
-   }) ;
-
-
-    function startGame(){
-        cells.forEach(cell => {
-            cell.addEventListener('click', clickEvent,{once:true});
-            restart.classList.add('showRestartButton');
-        });
-        }
-        startGame()
-
-    function clickEvent(e){
-    const cell = e.target;
-    let whosTurn = currentClass ? x_class : circle_class;
-    cell.classList.add(whosTurn);
-    showTern.innerText = `${whosTurn} terns completed.`;
-    swapterns();
-
-    if(winnerCheck(whosTurn)){
-        cells.forEach(cell => {
-            cell.removeEventListener('click', clickEvent,{once:true});
-            })
-    messageBox.classList.add('showResult');
-    gameMessage.innerText = `${whosTurn} is a Winner!`;
-    }
-    else if(isDraw()){
-        cells.forEach(cell => {
-            cell.removeEventListener('click', clickEvent,{once:true});
-            })
-        gameMessage.innerText = 'Game is Draw.';
-    }
-
-    messageBox.classList.add('showResult');
-    restart.classList.add('showRestartButton');
-
-
-}}
-
-function swapterns(){
-    currentClass = !currentClass;
-    }
-
-
-// common code
-function isDraw(){
-    return  [...cells].every(cell => {
-
-    return cell.classList.contains(x_class) || cell.classList.contains(circle_class);
+    checkInput()
 })
+
+cancel.addEventListener('click',() => {
+    formDivContainer.classList.remove('show-form-div')
+    todoForm.classList.remove('show-todo-form');
+    taskField.value = '';
+    dueDateField.value = '';
+})
+
+add.disabled = true;
+
+    // checking if any of two input field is empty or not
+
+    checkInput()
+ 
+       
+
+// TodoCard Class to make multiple cards
+
+class TodoCard{
+    cunstructor(Taskname,Date){
+        this.Taskname = Taskname;
+        this.date = Date;
+    }
+
+    
 }
 
-// function to check the winner
-function winnerCheck(whosTurn){
-    return winningCombinationArray.some(combination => {
-        return combination.every(index => {
-           return cells[index].classList.contains(whosTurn);
-        })
-    })}
+// function to add todo card
+
+add.addEventListener('click', addTodoCard);
+
+
+function addTodoCard(e){
+
+e.preventDefault();
+
+formDivContainer.classList.remove('show-form-div')
+todoForm.classList.remove('show-todo-form');
+
+let task = new TodoCard(taskField.value,dueDateField.value);
+allTodo.push(task);
+
+let card = document.createElement('div');
+card.classList.add('todoCard');
+todoContainer.appendChild(card);
+
+let taskName = document.createElement('div');
+taskName.classList.add('taskName');
+taskName.innerText = `Task : ${taskField.value}`;
+card.appendChild(taskName);
+
+let dueDate = document.createElement('div');
+dueDate.classList.add('dueDate');
+dueDate.innerText = `Due Date : ${dueDateField.value}`;
+card.appendChild(dueDate);
+
+taskField.value = '';
+dueDateField.value = '';
+
+let Delete = document.createElement('img')
+    Delete.classList.add('delete')
+    Delete.setAttribute('src','./Resources/Cross SVG.svg')
+    Delete.setAttribute('alt', 'delete icon');
+    Delete.setAttribute('height', 30);
+    Delete.setAttribute('width', 30);
+    card.appendChild(Delete);
+
+    
+Delete.addEventListener('click',() => {
+    card.remove();
+})
+
+}
 
 
 
-versusPlayer()
+function checkInput(){
+    add.addEventListener('mouseover', () => {
+
+        if(taskField.value == '' && dueDateField.value == ''){
+            console.log('Bot Input Are Empty')
+            add.disabled = true;
+            taskField.classList.remove('check-input-true');
+            dueDateField.classList.remove('check-input-true');
+// false check class won't overwrite if we don't remove true check class
+// we could have used simple border styling too.
+            taskField.classList.add('check-input-false');
+            dueDateField.classList.add('check-input-false');
+            
+
+    
+        }
+    
+        else if(taskField.value == '' && dueDateField.value !== ''){
+            console.log('taskfiled Is Empty')
+            add.disabled = true;
+            taskField.classList.add('check-input-false');
+            dueDateField.classList.add('check-input-true');
+    
+        }
+    
+        else if(dueDateField.value == '' && taskField.value !== ''){
+            console.log('dueDateFiled Is Empty')
+            add.disabled = true;
+            dueDateField.classList.add('check-input-false');
+            taskField.classList.add('check-input-true');
+        }
+        
+        else if(dueDateField.value !== '' && taskField.value !== ''){
+        console.log('Both Are Not Empty')
+        add.disabled = false;
+        taskField.classList.add('check-input-true'); 
+        dueDateField.classList.add('check-input-true');
+        }
+    })
+    
+}
